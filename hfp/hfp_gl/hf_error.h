@@ -8,7 +8,7 @@
 
 #else
 
-#define	ReportError(msg, errorcode, fName, lineNum)	printf("%s (0x%x) at %s : %d\n", msg, errorCode, fName, lineNum);
+#define	ReportError(msg, error, fName, lineNum)	printf("%s (0x%x) at %s : %d\n", msg, error, fName, lineNum);
 
 #endif
 
