@@ -38,6 +38,7 @@
 
 #include <string>
 #include <vector>
+#include <cstring>
 
 extern "C"{
 #include "general.h"

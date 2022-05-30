@@ -74,12 +74,12 @@ private:
 	//multiplier for presicion. It's 1% now
 	double eps_multiplier = 0.01;
 
-	void HFSlicer::processCell(int cell_counter);
-	void HFSlicer::processFirstColumn();
-	void HFSlicer::processLowerCell();
+	void processCell(int cell_counter);
+	void processFirstColumn();
+	void processLowerCell();
 	int sliceZ(double z);
 	//print "$$POLYLINE" line into the CLI file
-	void HFSlicer::printchain(ostream& toFile, const chain c);
+	void printchain(ostream& toFile, const chain c);
 
 	//xMin, yMin, zMin, xMax, yMax, zMax
 	vector<double> boundaries;

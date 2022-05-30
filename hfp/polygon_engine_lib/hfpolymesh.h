@@ -138,7 +138,7 @@ public:
 	void MinMax(std::vector<double> mm);
 	std::vector<double> MinMax();
 
-	std::vector<double> HFPolyMesh::Delta();
+	std::vector<double> Delta();
 
 	void Grid(std::vector<int> g);
 	std::vector<int> Grid();

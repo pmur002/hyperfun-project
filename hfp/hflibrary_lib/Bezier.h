@@ -29,7 +29,7 @@
 #ifndef BEZIER_H
 #define BEZIER_H
 
-static double Combin[21][21]= 
+double Combin[21][21]= 
 {{1.000000, 
 -1.000000, -1.000000, -1.000000, -1.000000, 
 -1.000000, -1.000000, -1.000000, -1.000000, 
@@ -178,19 +178,19 @@ static double Combin[21][21]=
 1140.000000, 190.000000, 20.000000, 1.000000, 
 }};
 
-static double R_int(double x, double y)
+double R_int(double x, double y)
 {	     
 return (x)+(y)-sqrt((x*x)+(y*y));
 }
 
-static double Bernstein(int i,int n, double t)
+double Bernstein(int i,int n, double t)
 {
 	return Combin[n][i]*pow((1.-t),n-i)*pow(t,i);
 }
 
-static init_bezier=1;
-static double *bu,*bv,*bw;
-static void InitBezier(int l,int m,int n){
+init_bezier=1;
+double *bu,*bv,*bw;
+void InitBezier(int l,int m,int n){
 
 	init_bezier = 0;
 	bu = (double *)malloc((l+1)*sizeof(double));
