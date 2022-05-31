@@ -489,7 +489,7 @@ private:
 	static float pythag(float a, float b);
 	
 	
-static void nrerror(char error_text[])
+static void nrerror(const char* error_text)
 /* Numerical Recipes standard error handler */
 {
 	fprintf(stderr,"Numerical Recipes run-time error...\n");

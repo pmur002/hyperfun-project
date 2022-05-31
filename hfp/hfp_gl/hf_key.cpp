@@ -50,7 +50,7 @@ extern int wireAndSolid;
 
 // PROCEDURES
 
-void OutputString(int x, int y, char *string) {
+void OutputString(int x, int y, const char *string) {
 	int len, i;
 	glColor3f(0, 0, 0);
 	glRasterPos2f(x, y);
