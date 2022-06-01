@@ -45,10 +45,6 @@ if not, see -  http://CGPL.org to get a copy of the License.
 #include <windows.h>
 #endif
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-
-
 #include "hftimer.h"
 #include "hfpcommandline.h"
 #include "hfpolymesh.h"
@@ -60,10 +56,6 @@ if not, see -  http://CGPL.org to get a copy of the License.
 #define MAX_FILE_SIZE 100000
 #define PI 3.14159265
 
-extern void SetMaterial(GLfloat *color);
-
-
-
 class CMainApp 
 {
 public:
@@ -73,8 +65,6 @@ public:
 	void createObject(double **** triangle,double **** normal);
 
 	void createGLTriangle(bool bNormal, bool bVertexNormal, bool bAttributes);
-
-	void CreateNormal();
 
 	double GetVertexFromTriangle(int,int,int);
 	double GetNormalFromTriangle(int,int,int);

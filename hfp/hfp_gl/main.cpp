@@ -38,19 +38,12 @@ if not, see -  http://CGPL.org to get a copy of the License.
 #include <math.h>
 #include <stdlib.h>
 
-#include <GL/glut.h>
-
 #include "main.h"
-#include "hf_draw.h"
-#include "hf_key.h"
-#include "hf_mouse.h"
-#include "trackball.h"
 #include "hf_error.h"
 
 ////////////////////////////////////
 // Global variables
 ////////////////////////////////////
-Trackball * globalTrackball = NULL;
 
 int width;
 int height;
@@ -97,279 +90,71 @@ extern int solidAndWire;
 void
 init_var (CMainApp *mainapp)
 {
-	width = mainapp->getWindowSizeX();
-	height = mainapp->getWindowSizeY();
-
-	// gives to HF_FACE_LINE_FILL a 0 or 1 value
-	// meaning wireframe or solid 
-	HF_FACE_LINE_FILL = mainapp->getFaceLineFill();
-
-	// if it has beeen required WireAndSurface from the command line
-	// then we should give a value of 2 
-	if (mainapp->getWireAndSurface() == 1)
-		HF_FACE_LINE_FILL = 2; 
-
-	HF_NORMAL = mainapp->getNormal();
-	if (HF_NORMAL)
+    width = mainapp->getWindowSizeX();
+    height = mainapp->getWindowSizeY();
+    
+    // gives to HF_FACE_LINE_FILL a 0 or 1 value
+    // meaning wireframe or solid 
+    HF_FACE_LINE_FILL = mainapp->getFaceLineFill();
+    
+    // if it has beeen required WireAndSurface from the command line
+    // then we should give a value of 2 
+    if (mainapp->getWireAndSurface() == 1)
+        HF_FACE_LINE_FILL = 2; 
+    
+    HF_NORMAL = mainapp->getNormal();
+    if (HF_NORMAL)
 	{   
-		HF_SHOW_NORMAL = mainapp->getNormalDisplay ();
-		HF_FLAT_SMOOTH = mainapp->getFlat();
+            HF_SHOW_NORMAL = mainapp->getNormalDisplay ();
+            HF_FLAT_SMOOTH = mainapp->getFlat();
 	}
-	else // we did not compute the normals so we can not show them
+    else // we did not compute the normals so we can not show them
 	{
-		HF_SHOW_NORMAL = 0;
-		HF_FLAT_SMOOTH = 1; // defaut is flat
+            HF_SHOW_NORMAL = 0;
+            HF_FLAT_SMOOTH = 1; // defaut is flat
 	}
 
-	first_normal_show = 0;
-	HF_SHOW_AXES = 1;
+    first_normal_show = 0;
+    HF_SHOW_AXES = 1;
 
-	HF_VERTEX_NORMAL = 1;
+    HF_VERTEX_NORMAL = 1;
 
-	HF_LIGHT_TYPE = mainapp->getLightType (); // 1 diffuse; 2 specular; 
-	// 3: diffuse & specular.
+    HF_LIGHT_TYPE = mainapp->getLightType (); // 1 diffuse; 2 specular; 
+    // 3: diffuse & specular.
 
-	mainapp->getFaceColor(HF_FACE_COLOR);
-	mainapp->getLineColor(HF_LINE_COLOR);
-	mainapp->getBoundingBox(HF_MIN, HF_MAX);
-	mainapp->getViewPos(itsCPos, itsCLookAt);
+    mainapp->getFaceColor(HF_FACE_COLOR);
+    mainapp->getLineColor(HF_LINE_COLOR);
+    mainapp->getBoundingBox(HF_MIN, HF_MAX);
+    mainapp->getViewPos(itsCPos, itsCLookAt);
 
-	//BEN
-	HAS_ATTRIBUTES = edi->getAttribute();
-
-
-
+    //BEN
+    HAS_ATTRIBUTES = edi->getAttribute();
 }
 
-
-void 
-idle_func () 
+void freeRessources (void) 
 {
-	glutPostRedisplay ();
+    if(edi!=NULL){
+        delete (edi);
+        edi=NULL;
+    }
 }
-
-
-void 
-icon (int State) 
-{
-	switch (State)
-	{
-	case GLUT_VISIBLE:
-		glutIdleFunc (idle_func);
-		break;
-
-	case GLUT_NOT_VISIBLE:
-		glutIdleFunc (NULL);
-		break;
-
-	default:
-		break;
-	}
-}
-
-
-void 
-display_help(void)
-{
-	GL_CALL(glClear (GL_COLOR_BUFFER_BIT), ;);
-	displaytext ();
-	GL_CALL(glutSwapBuffers (), ;);
-}
-
-
-void 
-display_render(void) 
-{
-	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	GL_CALL(glPushMatrix (), ;);
-	if (globalTrackball)
-		globalTrackball->matrix ();
-
-	if (solidAndWire == 0) 
-	{
-		GL_CALL(glCallList(hfObject), ;);
-	}
-	else
-	{
-		// we want wireframe surimposing surface
-		GL_CALL(glCallList(hfObject), ;);
-
-		GL_CALL(glDisable(GL_LIGHTING),;);
-		GL_CALL(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE),;);
-		GL_CALL(glEnable(GL_POLYGON_OFFSET_LINE),;);
-		GL_CALL(glPolygonOffset(-1.0f, -1.0f),;);
-
-		GL_CALL(glLineWidth(0.4),;);
-		GL_CALL(glColor3f(HF_LINE_COLOR[0],HF_LINE_COLOR[1],HF_LINE_COLOR[2]),;);
-		GL_CALL(glCallList(hfObject),;);
-
-		GL_CALL(glDisable(GL_POLYGON_OFFSET_LINE),;); 
-		GL_CALL(glPolygonMode(GL_FRONT_AND_BACK,GL_FILL),;); 
-		GL_CALL(glEnable(GL_LIGHTING),;); 
-		// end of modification
-	}
-
-	if (HF_SHOW_NORMAL == 1 && HF_NORMAL)
-	{
-		GL_CALL(glCallList (hfNormals),;);
-	}
-
-	if (HF_SHOW_AXES == 1)
-	{
-		GL_CALL(glLineWidth(2.0),;);
-		GL_CALL(glCallList (hfAxes),;);
-		GL_CALL(glLineWidth(1.0),;);
-	}
-	GL_CALL(glCallList(hfObject),;);
-	GL_CALL(glPopMatrix (),;);
-
-	GL_CALL(glutSwapBuffers (),;);
-}
-
-
-void
-display_main(void)
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glutSwapBuffers();
-}
-
-
-void 
-reshape_render(int w, int h) 
-{
-	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	if (globalTrackball)
-		globalTrackball->reshape (w, h);
-
-	glViewport (0, 0, (GLsizei) w, (GLsizei) h);
-	glMatrixMode (GL_PROJECTION);
-	glLoadIdentity ();
-	gluPerspective (30, (GLfloat) w / (GLfloat) h, 1.0, 200.0);
-	glMatrixMode (GL_MODELVIEW);
-	glLoadIdentity ();
-	gluLookAt (itsCPos[0], itsCPos[1], itsCPos[2], 
-		itsCLookAt[0], itsCLookAt[1], itsCLookAt[2], 
-		0, 1, 0);
-}
-
-
-void
-reshape_help(int w, int h)
-{
-	glViewport(0,0,w,h);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(0,w,h,0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-}
-
-
-void
-reshape_main(int w, int h)
-{
-	int sub_w=w, sub_h=h-70;
-
-	glViewport(0,0,w,h);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluOrtho2D(0,w,h,0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	glutSetWindow(sub_render);
-	glutPositionWindow(0,0);
-	glutReshapeWindow(sub_w, sub_h);
-
-	glutSetWindow(sub_help);
-	glutPositionWindow(0, sub_h);
-	glutReshapeWindow(sub_w, 70);
-}
-
-
-void 
-freeRessources (void) 
-{
-	if(edi!=NULL){
-		delete (edi);
-		edi=NULL;
-	}
-
-	if (! (vn_t<=0) ) /* exit is nt called by the exit 1 in if (vn_t <=0)*/
-		if(globalTrackball!=NULL){
-			delete (globalTrackball);
-			globalTrackball=NULL;
-
-			glutDestroyWindow(sub_help);
-			glutDestroyWindow(sub_render);
-			glutDestroyWindow(window_main);
-		}
-}
-
-
 
 
 int main (int argc, char **argv) 
 {
-	edi = new CMainApp (argc, argv);
-
-	vn_t = edi->init();
-	if (vn_t == 0){
-		if(edi!=NULL){
-			delete(edi);
-			edi=NULL;
-		}
-		printf ("Isosurface not generated...\n");
-		exit (1);
-	}
-	else if (vn_t > 0)
-	{
-		init_var(edi);
-
-		glutInit(&argc, argv);
-		glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-		glutInitWindowSize(width, height);
-		glutInitWindowPosition(0, 0);
-
-		window_main = glutCreateWindow(argv[0]);
-
-
-		atexit(freeRessources);
-
-		glutDisplayFunc(display_main);
-		glutReshapeFunc(reshape_main);
-		glutIdleFunc(idle_func);
-
-		glutVisibilityFunc(icon);
-
-		sub_render = glutCreateSubWindow(window_main, 0, 0, width, height - 70);
-
-		globalTrackball = new Trackball(sub_render);
-		globalTrackball->animate(GL_FALSE);
-		globalTrackball->setCurrent();
-
-
-		glutDisplayFunc(display_render);
-		glutReshapeFunc(reshape_render);
-		glutKeyboardFunc(keyboard);
-		glutMouseFunc(my_mouse);
-		glutMotionFunc(my_motion);
-		glutPassiveMotionFunc(my_passive_motion);
-		glutSpecialFunc(SpecialKeyboard);
-		init_render();
-
-		sub_help = glutCreateSubWindow(window_main, 0, height - 70, width, 70);
-		glutDisplayFunc(display_help);
-		glutReshapeFunc(reshape_help);
-		init_help();
-
-		glutMainLoop();
-	}
-
-	freeRessources();
-
-	return 0;
+    edi = new CMainApp (argc, argv);
+    
+    vn_t = edi->init();
+    if (vn_t == 0) {
+        if (edi != NULL) {
+            delete(edi);
+            edi=NULL;
+        }
+        printf("Isosurface not generated...\n");
+        exit(1);
+    }
+    
+    freeRessources();
+    
+    return 0;
 }
